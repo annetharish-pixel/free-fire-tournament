@@ -188,7 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Payment UPI QR & ID
         displayUpiId.textContent = info.upi_id;
-        if (!upiQrCodeImg.src || !upiQrCodeImg.src.includes('payment_qr_scanner')) {
+        if (info.qr_code_url && info.qr_code_url.trim() !== '') {
+            upiQrCodeImg.src = info.qr_code_url;
+        } else if (!upiQrCodeImg.src || !upiQrCodeImg.src.includes('payment_qr_scanner')) {
             const upiPayUrl = `upi://pay?pa=${encodeURIComponent(info.upi_id)}&pn=${encodeURIComponent(info.name)}&am=${info.fee}&cu=INR`;
             upiQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiPayUrl)}`;
         }
@@ -196,8 +198,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // Contact info
         const waTextEl = document.getElementById('contactWhatsappText');
         const waBtnEl = document.getElementById('contactWhatsappBtn');
-        if (waTextEl) waTextEl.textContent = info.contact_whatsapp;
-        if (waBtnEl) waBtnEl.href = `https://wa.me/${info.contact_whatsapp.replace(/\D/g, '')}`;
+        const waContainer = document.getElementById('contactWhatsappContainer');
+
+        if (waContainer && info.contact_whatsapp) {
+            const rawNumbers = info.contact_whatsapp.split(/[,;\n/]+/).map(n => n.trim()).filter(Boolean);
+            if (rawNumbers.length > 0) {
+                waContainer.innerHTML = rawNumbers.map((num, idx) => {
+                    const cleanDigits = num.replace(/\D/g, '');
+                    const waUrl = cleanDigits.length === 10 ? `https://wa.me/91${cleanDigits}` : `https://wa.me/${cleanDigits}`;
+                    const label = rawNumbers.length > 1 ? `WhatsApp Support ${idx + 1}` : `WhatsApp Support`;
+                    return `
+                        <div class="card-glass text-center" style="text-align: center;">
+                            <i class="fa-brands fa-whatsapp text-green" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <h3>${label}</h3>
+                            <p style="font-size: 1.3rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 1.2rem;">${escapeHtml(num)}</p>
+                            <a href="${waUrl}" target="_blank" class="btn btn-success" style="width: 100%;">
+                                <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            }
+        } else {
+            if (waTextEl) waTextEl.textContent = info.contact_whatsapp;
+            if (waBtnEl) waBtnEl.href = `https://wa.me/${info.contact_whatsapp.replace(/\D/g, '')}`;
+        }
 
         // Rules List
         renderRules(info.rules);
@@ -321,9 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 1; i <= 4; i++) {
             const pName = document.getElementById(`p${i}_name`).value.trim();
             const pUid = document.getElementById(`p${i}_uid`).value.trim();
-            const pIgn = document.getElementById(`p${i}_ign`).value.trim();
 
-            if (!pName || !pUid || !pIgn) {
+            if (!pName || !pUid) {
                 showToast(`Please fill out all details for Player ${i}. All 4 players are mandatory.`, 'error');
                 return false;
             }
@@ -467,7 +491,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="stat-label">Player ${p.player_number}</div>
                     <div style="font-weight: 700; color: var(--text-primary); margin-top: 0.2rem;">${escapeHtml(p.player_name)}</div>
                     <div style="font-size: 0.85rem; color: var(--neon-cyan);">UID: ${escapeHtml(p.free_fire_uid)}</div>
-                    <div style="font-size: 0.85rem; color: var(--gold-accent);">IGN: ${escapeHtml(p.in_game_name)}</div>
                 </div>
             `).join('');
 
@@ -644,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const team = allAdminTeamsData.find(t => t.team_id === btn.dataset.teamid);
                 if (team) {
-                    const pList = team.players.map(p => `Player ${p.player_number}: ${p.player_name} (UID: ${p.free_fire_uid}, IGN: ${p.in_game_name})`).join('\n');
+                    const pList = team.players.map(p => `Player ${p.player_number}: ${p.player_name} (UID: ${p.free_fire_uid})`).join('\n');
                     alert(`Squad Roster for ${team.team_name} (${team.team_id}):\n\n${pList}`);
                 }
             });
@@ -720,11 +743,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tournamentData) {
             document.getElementById('admSetTitle').value = tournamentData.name;
             document.getElementById('admSetRegStatus').value = tournamentData.status;
+            document.getElementById('admSetMaxTeams').value = tournamentData.max_teams;
             document.getElementById('admSetFee').value = tournamentData.fee;
             document.getElementById('admSetPrizePool').value = tournamentData.prize_pool;
             document.getElementById('admSetUpiId').value = tournamentData.upi_id;
             document.getElementById('admSetDate').value = tournamentData.date;
             document.getElementById('admSetRules').value = tournamentData.rules;
+            if (document.getElementById('admSetRegDate')) {
+                document.getElementById('admSetRegDate').value = tournamentData.reg_date || '';
+            }
+            if (document.getElementById('admSetWhatsapp')) {
+                document.getElementById('admSetWhatsapp').value = tournamentData.contact_whatsapp || '';
+            }
+            const admQrPreview = document.getElementById('admQrPreview');
+            if (admQrPreview) {
+                if (tournamentData.qr_code_url && tournamentData.qr_code_url.trim() !== '') {
+                    admQrPreview.src = tournamentData.qr_code_url;
+                } else {
+                    admQrPreview.src = '/static/images/payment_qr_scanner.jpg';
+                }
+            }
         }
     }
 
@@ -733,16 +771,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = {
             name: document.getElementById('admSetTitle').value.trim(),
             status: document.getElementById('admSetRegStatus').value,
+            max_teams: parseInt(document.getElementById('admSetMaxTeams').value) || 12,
             fee: parseFloat(document.getElementById('admSetFee').value),
             prize_pool: document.getElementById('admSetPrizePool').value.trim(),
             upi_id: document.getElementById('admSetUpiId').value.trim(),
+            reg_date: document.getElementById('admSetRegDate') ? document.getElementById('admSetRegDate').value.trim() : (tournamentData ? tournamentData.reg_date : '12/09/2026'),
             date: document.getElementById('admSetDate').value.trim(),
             time: tournamentData ? tournamentData.time : 'To be announced',
             game: tournamentData ? tournamentData.game : 'Free Fire',
             team_size: 4,
-            max_teams: tournamentData ? tournamentData.max_teams : 64,
             rules: document.getElementById('admSetRules').value.trim(),
-            contact_whatsapp: tournamentData ? tournamentData.contact_whatsapp : '+919876543210',
+            contact_whatsapp: document.getElementById('admSetWhatsapp') ? document.getElementById('admSetWhatsapp').value.trim() : (tournamentData ? tournamentData.contact_whatsapp : '+91 90525 96711, +91 93981 33478'),
             contact_instagram: tournamentData ? tournamentData.contact_instagram : '@ff_squad_battle',
             contact_email: tournamentData ? tournamentData.contact_email : 'support@ffsquadbattle.com'
         };
@@ -878,5 +917,65 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+    const admQrUploadBtn = document.getElementById('admQrUploadBtn');
+    if (admQrUploadBtn) {
+        admQrUploadBtn.addEventListener('click', async () => {
+            const fileInput = document.getElementById('admQrFileInput');
+            if (!fileInput || !fileInput.files[0]) {
+                showToast('Please select a QR scanner photo file first.', 'error');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('qr_photo', fileInput.files[0]);
+
+            admQrUploadBtn.disabled = true;
+            admQrUploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+
+            try {
+                const res = await fetch('/api/admin/upload-qr', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('QR Scanner photo updated successfully!', 'success');
+                    fileInput.value = '';
+                    if (result.qr_code_url) {
+                        const admQrPreview = document.getElementById('admQrPreview');
+                        if (admQrPreview) admQrPreview.src = result.qr_code_url;
+                    }
+                    fetchTournamentInfo();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (err) {
+                showToast('Error uploading QR scanner photo.', 'error');
+            } finally {
+                admQrUploadBtn.disabled = false;
+                admQrUploadBtn.innerHTML = '<i class="fa-solid fa-upload"></i> Upload New Scanner Photo';
+            }
+        });
+    }
+
+    const admQrResetBtn = document.getElementById('admQrResetBtn');
+    if (admQrResetBtn) {
+        admQrResetBtn.addEventListener('click', async () => {
+            if (!confirm('Reset QR scanner photo to default?')) return;
+            try {
+                const res = await fetch('/api/admin/reset-qr', { method: 'POST' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('QR scanner reset to default.', 'success');
+                    const admQrPreview = document.getElementById('admQrPreview');
+                    if (admQrPreview) admQrPreview.src = '/static/images/payment_qr_scanner.jpg';
+                    fetchTournamentInfo();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (err) {
+                showToast('Error resetting QR scanner photo.', 'error');
+            }
+        });
     }
 });

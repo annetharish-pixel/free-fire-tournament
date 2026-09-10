@@ -2,7 +2,7 @@
    FREE FIRE TOURNAMENT PORTAL - CYBER ESPORTS DESIGN SYSTEM
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Teko:wght@700&family=Bebas+Neue&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
     --bg-primary: #0a0d14;
@@ -1034,5 +1034,92 @@ h3 { font-size: clamp(1.2rem, 2.5vw, 1.5rem); font-weight: 700; }
 
     .track-search-box {
         flex-direction: column;
+    }
+}
+
+/* ==========================================================================
+   FREE FIRE BRANDING & BIG FONT STYLING
+   ========================================================================== */
+
+.ff-hero-logo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin: 1rem 0 1.5rem 0;
+}
+
+.ff-logo-img {
+    max-width: 100%;
+    width: 480px;
+    height: auto;
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 30px rgba(255, 170, 0, 0.45), 0 0 15px rgba(255, 0, 85, 0.35);
+    border: 2px solid rgba(255, 170, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ff-logo-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 45px rgba(255, 170, 0, 0.75), 0 0 25px rgba(0, 243, 255, 0.6);
+}
+
+.ff-custom-logo-text {
+    font-family: 'Black Ops One', 'Teko', 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-shadow:
+        0 0 20px rgba(255, 170, 0, 0.8),
+        0 0 40px rgba(255, 0, 85, 0.6),
+        3px 3px 0px #000;
+    user-select: none;
+}
+
+.ff-word {
+    background: linear-gradient(180deg, #ffffff 30%, #e2e8f0 70%, #ffaa00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.9));
+}
+
+.ff-word-fire {
+    background: linear-gradient(180deg, #ffffff 20%, #ffaa00 60%, #ff0055 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.ff-dagger-i {
+    display: inline-block;
+    color: #ffaa00;
+    -webkit-text-fill-color: #ffaa00;
+    animation: flamePulse 2s infinite ease-in-out;
+    margin: 0 2px;
+}
+
+@keyframes flamePulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px #ffaa00) drop-shadow(0 0 15px #ff0055);
+    }
+    50% {
+        transform: scale(1.18);
+        filter: drop-shadow(0 0 15px #ffaa00) drop-shadow(0 0 25px #ff0055);
+    }
+}
+
+@media (max-width: 768px) {
+    .ff-custom-logo-text {
+        font-size: 2.8rem;
+        letter-spacing: 3px;
+    }
+    .ff-logo-img {
+        width: 100%;
     }
 }

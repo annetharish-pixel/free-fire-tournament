@@ -71,9 +71,15 @@ def init_db():
             rules TEXT NOT NULL,
             upi_id TEXT NOT NULL,
             contact_whatsapp TEXT NOT NULL,
-            contact_email TEXT NOT NULL
+            contact_email TEXT NOT NULL,
+            qr_code_url TEXT DEFAULT ''
         )
     ''')
+
+    try:
+        cursor.execute("ALTER TABLE tournament_info ADD COLUMN qr_code_url TEXT DEFAULT ''")
+    except Exception:
+        pass
 
     # Leaderboard Table
     cursor.execute('''
@@ -99,19 +105,13 @@ def init_db():
     cursor.execute("SELECT COUNT(*) FROM tournament_info")
     if cursor.fetchone()[0] == 0:
         default_rules = "\n".join([
-            "1. Each team must contain exactly 4 registered players.",
-            "2. Registration fee is ₹200 per team and is non-refundable.",
-            "3. Registration closes on 12/09/2026. Matches will be held on 13/09/2026.",
-            "4. All players must provide their correct Free Fire UID and In-Game Name.",
-            "5. One player cannot participate in multiple teams.",
-            "6. Players must join the match custom room at the specified time.",
-            "7. Any use of hacks, mods, or third-party tools will result in instant team disqualification.",
-            "8. Payment transaction ID and screenshot proof must be verified before confirmation.",
-            "9. The tournament organizer's decisions regarding disputes will be final."
+            "1. Each squad must consist of 4 registered players with correct Free Fire UID and IGN.",
+            "2. Registration fee is ₹200 per squad (Payment UTR & screenshot verification required).",
+            "3. Any use of hacks, cheats, or third-party tools will result in instant disqualification."
         ])
         cursor.execute('''
             INSERT INTO tournament_info (id, name, game, fee, team_size, reg_date, date, time, max_teams, prize_pool, status, rules, upi_id, contact_whatsapp, contact_email)
-            VALUES (1, 'Free Fire Squad Battle', 'Free Fire', 200.0, 4, '12/09/2026', '13/09/2026', 'To be announced', 12, '₹1,000 Total Pool', 'Open', ?, 'fftournament@upi', '+91 90525 96711', 'support@ffsquadbattle.com')
+            VALUES (1, 'Free Fire Squad Battle', 'Free Fire', 200.0, 4, '12/09/2026', '13/09/2026', 'To be announced', 12, '₹1,000 Total Pool', 'Open', ?, 'fftournament@upi', '+91 90525 96711, +91 93981 33478', 'support@ffsquadbattle.com')
         ''', (default_rules,))
 
     # Seed Admin User if empty

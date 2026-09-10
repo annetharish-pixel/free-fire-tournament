@@ -62,14 +62,23 @@ def get_tournament_info():
 @app.route('/api/register', methods=['POST'])
 def register_team():
     try:
-        # Check tournament status first
+        # Check tournament status and max squad limit
         conn = db.get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT status FROM tournament_info WHERE id = 1")
-        t_status = cursor.fetchone()[0]
+        cursor.execute("SELECT status, max_teams FROM tournament_info WHERE id = 1")
+        t_info = cursor.fetchone()
+        t_status = t_info['status']
+        max_teams = t_info['max_teams']
+
         if t_status != 'Open':
             conn.close()
             return jsonify({'success': False, 'message': 'Registration is currently closed by the organizer.'}), 400
+
+        cursor.execute("SELECT COUNT(*) FROM teams")
+        registered_count = cursor.fetchone()[0]
+        if registered_count >= max_teams:
+            conn.close()
+            return jsonify({'success': False, 'message': f'Registration is full! Maximum squad limit of {max_teams} reached.'}), 400
 
         # Extract Form Fields
         team_name = request.form.get('team_name', '').strip()
@@ -83,7 +92,7 @@ def register_team():
         for i in range(1, 5):
             p_name = request.form.get(f'player_{i}_name', '').strip()
             p_uid = request.form.get(f'player_{i}_uid', '').strip()
-            p_ign = request.form.get(f'player_{i}_ign', '').strip()
+            p_ign = request.form.get(f'player_{i}_ign', '').strip() or p_name
             players_data.append({
                 'number': i,
                 'name': p_name,
@@ -99,7 +108,7 @@ def register_team():
 
         # 2. Validate all 4 players
         for p in players_data:
-            if not p['name'] or not p['uid'] or not p['ign']:
+            if not p['name'] or not p['uid']:
                 conn.close()
                 return jsonify({'success': False, 'message': f'Please enter valid details for Player {p["number"]}. All 4 players are mandatory.'}), 400
 
@@ -399,21 +408,73 @@ def admin_update_tournament_info():
     upi_id = data.get('upi_id')
     whatsapp = data.get('contact_whatsapp')
     email = data.get('contact_email')
+    qr_code_url = data.get('qr_code_url')
 
     conn = db.get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE tournament_info SET
-            name = ?, game = ?, fee = ?, team_size = ?, reg_date = ?, date = ?, time = ?,
-            max_teams = ?, prize_pool = ?, status = ?, rules = ?, upi_id = ?,
-            contact_whatsapp = ?, contact_email = ?
-        WHERE id = 1
-    ''', (name, game, fee, team_size, reg_date, date, time_str, max_teams, prize_pool, status, rules, upi_id, whatsapp, email))
+    if qr_code_url is not None:
+        cursor.execute('''
+            UPDATE tournament_info SET
+                name = ?, game = ?, fee = ?, team_size = ?, reg_date = ?, date = ?, time = ?,
+                max_teams = ?, prize_pool = ?, status = ?, rules = ?, upi_id = ?,
+                contact_whatsapp = ?, contact_email = ?, qr_code_url = ?
+            WHERE id = 1
+        ''', (name, game, fee, team_size, reg_date, date, time_str, max_teams, prize_pool, status, rules, upi_id, whatsapp, email, qr_code_url))
+    else:
+        cursor.execute('''
+            UPDATE tournament_info SET
+                name = ?, game = ?, fee = ?, team_size = ?, reg_date = ?, date = ?, time = ?,
+                max_teams = ?, prize_pool = ?, status = ?, rules = ?, upi_id = ?,
+                contact_whatsapp = ?, contact_email = ?
+            WHERE id = 1
+        ''', (name, game, fee, team_size, reg_date, date, time_str, max_teams, prize_pool, status, rules, upi_id, whatsapp, email))
 
     conn.commit()
     conn.close()
 
     return jsonify({'success': True, 'message': 'Tournament information updated successfully.'})
+
+@app.route('/api/admin/upload-qr', methods=['POST'])
+def admin_upload_qr():
+    if not is_admin_authenticated():
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 401
+    
+    if 'qr_photo' not in request.files:
+        return jsonify({'success': False, 'message': 'No image file uploaded.'}), 400
+    
+    file = request.files['qr_photo']
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'success': False, 'message': 'Invalid file format. Please upload PNG, JPG, JPEG, or WEBP image.'}), 400
+    
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    saved_filename = f"qr_scanner_{uuid.uuid4().hex[:8]}.{ext}"
+    qr_dir = os.path.join(app.root_path, 'static', 'uploads', 'qr')
+    os.makedirs(qr_dir, exist_ok=True)
+    filepath = os.path.join(qr_dir, saved_filename)
+    file.save(filepath)
+    
+    qr_url = f"/static/uploads/qr/{saved_filename}"
+    
+    conn = db.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE tournament_info SET qr_code_url = ? WHERE id = 1", (qr_url,))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'success': True, 'message': 'Scanner QR image updated successfully!', 'qr_code_url': qr_url})
+
+@app.route('/api/admin/reset-qr', methods=['POST'])
+def admin_reset_qr():
+    if not is_admin_authenticated():
+        return jsonify({'success': False, 'message': 'Unauthorized access.'}), 401
+    
+    conn = db.get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE tournament_info SET qr_code_url = '' WHERE id = 1")
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'success': True, 'message': 'Scanner QR reset to default.'})
 
 @app.route('/api/admin/leaderboard', methods=['POST'])
 def admin_save_leaderboard_entry():

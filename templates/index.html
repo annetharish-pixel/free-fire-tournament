@@ -50,7 +50,17 @@
                         <span class="pulse-dot"></span>
                         <span id="regStatusBadge">REGISTRATION OPEN</span>
                     </div>
-                    <h1 class="hero-title">DOMINATE THE <span class="text-cyan glow-cyan">BATTLEGROUND</span></h1>
+
+                    <!-- BIG FREE FIRE LOGO & CUSTOM FONT BRANDING -->
+                    <div class="ff-hero-logo-wrapper">
+                        <img src="{{ url_for('static', filename='images/free_fire_banner_logo.png') }}" alt="FREE FIRE Logo" class="ff-logo-img">
+                        <div class="ff-custom-logo-text">
+                            <span class="ff-word">FREE</span>
+                            <span class="ff-word ff-word-fire">F<span class="ff-dagger-i"><i class="fa-solid fa-fire-flame-curved"></i></span>RE</span>
+                        </div>
+                    </div>
+
+                    <h1 class="hero-title" style="font-size: 2rem;">DOMINATE THE <span class="text-cyan glow-cyan">BATTLEGROUND</span></h1>
                     <p class="hero-subtitle">
                         Assemble your ultimate 4-player squad, showcase your tactical gameplay, compete for glory, and claim the ₹1,000 prize pool in the Free Fire Squad Battle!
                     </p>
@@ -231,10 +241,6 @@
                                     <label class="form-label">Free Fire UID *</label>
                                     <input type="text" name="player_1_uid" id="p1_uid" class="form-control" placeholder="Numeric UID e.g. 123456789" required>
                                 </div>
-                                <div class="form-group full-width">
-                                    <label class="form-label">In-Game Name (IGN) *</label>
-                                    <input type="text" name="player_1_ign" id="p1_ign" class="form-control" placeholder="Exact IGN e.g. FS_Leader" required>
-                                </div>
                             </div>
                         </div>
 
@@ -252,10 +258,6 @@
                                 <div class="form-group">
                                     <label class="form-label">Free Fire UID *</label>
                                     <input type="text" name="player_2_uid" id="p2_uid" class="form-control" placeholder="Numeric UID e.g. 234567890" required>
-                                </div>
-                                <div class="form-group full-width">
-                                    <label class="form-label">In-Game Name (IGN) *</label>
-                                    <input type="text" name="player_2_ign" id="p2_ign" class="form-control" placeholder="Exact IGN e.g. FS_Sniper" required>
                                 </div>
                             </div>
                         </div>
@@ -275,10 +277,6 @@
                                     <label class="form-label">Free Fire UID *</label>
                                     <input type="text" name="player_3_uid" id="p3_uid" class="form-control" placeholder="Numeric UID e.g. 345678901" required>
                                 </div>
-                                <div class="form-group full-width">
-                                    <label class="form-label">In-Game Name (IGN) *</label>
-                                    <input type="text" name="player_3_ign" id="p3_ign" class="form-control" placeholder="Exact IGN e.g. FS_Rusher" required>
-                                </div>
                             </div>
                         </div>
 
@@ -296,10 +294,6 @@
                                 <div class="form-group">
                                     <label class="form-label">Free Fire UID *</label>
                                     <input type="text" name="player_4_uid" id="p4_uid" class="form-control" placeholder="Numeric UID e.g. 456789012" required>
-                                </div>
-                                <div class="form-group full-width">
-                                    <label class="form-label">In-Game Name (IGN) *</label>
-                                    <input type="text" name="player_4_ign" id="p4_ign" class="form-control" placeholder="Exact IGN e.g. FS_Support" required>
                                 </div>
                             </div>
                         </div>
@@ -427,12 +421,20 @@
                 <h2>ORGANIZER SUPPORT</h2>
             </div>
 
-            <div style="max-width: 500px; margin: 0 auto;">
+            <div id="contactWhatsappContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; max-width: 700px; margin: 0 auto;">
                 <div class="card-glass text-center" style="text-align: center;">
                     <i class="fa-brands fa-whatsapp text-green" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h3>WhatsApp Support</h3>
-                    <p id="contactWhatsappText" style="font-size: 1.3rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 1.2rem;">+91 90525 96711</p>
-                    <a id="contactWhatsappBtn" href="https://wa.me/919052596711" target="_blank" class="btn btn-success" style="width: 100%;">
+                    <h3>WhatsApp Support 1</h3>
+                    <p style="font-size: 1.3rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 1.2rem;">+91 90525 96711</p>
+                    <a href="https://wa.me/919052596711" target="_blank" class="btn btn-success" style="width: 100%;">
+                        <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+                    </a>
+                </div>
+                <div class="card-glass text-center" style="text-align: center;">
+                    <i class="fa-brands fa-whatsapp text-green" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h3>WhatsApp Support 2</h3>
+                    <p style="font-size: 1.3rem; font-weight: 700; color: var(--neon-cyan); margin-bottom: 1.2rem;">+91 93981 33478</p>
+                    <a href="https://wa.me/919398133478" target="_blank" class="btn btn-success" style="width: 100%;">
                         <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
                     </a>
                 </div>
@@ -606,6 +608,10 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Max Squads (Teams Limit)</label>
+                            <input type="number" id="admSetMaxTeams" class="form-control" min="1" placeholder="12" required>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Entry Fee (₹)</label>
                             <input type="number" id="admSetFee" class="form-control" required>
                         </div>
@@ -618,12 +624,42 @@
                             <input type="text" id="admSetUpiId" class="form-control" required>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Registration Deadline</label>
+                            <input type="text" id="admSetRegDate" class="form-control" placeholder="12/09/2026" required>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Tournament Date</label>
                             <input type="text" id="admSetDate" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">WhatsApp Contact Number(s)</label>
+                            <input type="text" id="admSetWhatsapp" class="form-control" placeholder="+91 90525 96711, +91 93981 33478" required>
                         </div>
                         <div class="form-group full-width">
                             <label class="form-label">Tournament Rules (One rule per line)</label>
                             <textarea id="admSetRules" class="form-control" rows="8" required></textarea>
+                        </div>
+                        <div class="form-group full-width" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                            <label class="form-label" style="font-size: 1.1rem; color: var(--gold-accent);">
+                                <i class="fa-solid fa-qrcode"></i> Payment QR Scanner Photo
+                            </label>
+                            <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.8rem;">
+                                <div style="background: rgba(0,0,0,0.5); padding: 0.8rem; border-radius: 12px; border: 1px solid var(--border-cyan);">
+                                    <img id="admQrPreview" src="{{ url_for('static', filename='images/payment_qr_scanner.jpg') }}" alt="QR Scanner Preview" style="width: 140px; height: 140px; object-fit: cover; border-radius: 8px; display: block;" />
+                                </div>
+                                <div style="flex: 1; min-width: 240px;">
+                                    <input type="file" id="admQrFileInput" accept="image/*" class="form-control" style="margin-bottom: 0.8rem;">
+                                    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                                        <button type="button" id="admQrUploadBtn" class="btn btn-secondary">
+                                            <i class="fa-solid fa-upload"></i> Upload New Scanner Photo
+                                        </button>
+                                        <button type="button" id="admQrResetBtn" class="btn btn-outline" style="border-color: var(--text-muted); color: var(--text-muted);">
+                                            <i class="fa-solid fa-rotate-left"></i> Reset to Default
+                                        </button>
+                                    </div>
+                                    <small class="text-muted" style="display: block; margin-top: 0.5rem;">Upload custom payment QR scanner photo (JPG, PNG, WEBP).</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">
