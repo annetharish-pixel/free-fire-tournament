@@ -111,7 +111,7 @@ def init_db():
         ])
         cursor.execute('''
             INSERT INTO tournament_info (id, name, game, fee, team_size, reg_date, date, time, max_teams, prize_pool, status, rules, upi_id, contact_whatsapp, contact_email)
-            VALUES (1, 'Free Fire Squad Battle', 'Free Fire', 200.0, 4, '12/09/2026', '13/09/2026', 'To be announced', 12, '₹1,000 Total Pool', 'Open', ?, 'fftournament@upi', '+91 90525 96711, +91 93981 33478', 'support@ffsquadbattle.com')
+            VALUES (1, 'Free Fire Squad Battle', 'Free Fire', 200.0, 4, '19/09/2026', '20/09/2026', 'To be announced', 12, '₹1,500', 'Open', ?, 'fftournament@upi', '+91 90525 96711, +91 93981 33478', 'support@ffsquadbattle.com')
         ''', (default_rules,))
 
     # Seed Admin User if empty

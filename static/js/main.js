@@ -182,8 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Specifications
         document.getElementById('infoGame').textContent = info.game;
         const regDateEl = document.getElementById('infoRegDate');
-        if (regDateEl) regDateEl.textContent = info.reg_date || '12/09/2026';
-        document.getElementById('infoDate').textContent = info.date || '13/09/2026';
+        if (regDateEl) regDateEl.textContent = info.reg_date || '19/09/2026';
+        document.getElementById('infoDate').textContent = info.date || '20/09/2026';
         document.getElementById('infoMaxTeams').textContent = `${info.max_teams} Squads`;
 
         // Payment UPI QR & ID
