@@ -187,12 +187,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('infoMaxTeams').textContent = `${info.max_teams} Squads`;
 
         // Payment UPI QR & ID
-        displayUpiId.textContent = info.upi_id;
+        const upiId = info.upi_id || '9052596711@fam';
+        const fee = info.fee || 200;
+        displayUpiId.textContent = upiId;
+        const upiPayUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(info.name || 'Free Fire Squad Battle')}&am=${fee}&cu=INR`;
+        
         if (info.qr_code_url && info.qr_code_url.trim() !== '') {
             upiQrCodeImg.src = info.qr_code_url;
-        } else if (!upiQrCodeImg.src || !upiQrCodeImg.src.includes('payment_qr_scanner')) {
-            const upiPayUrl = `upi://pay?pa=${encodeURIComponent(info.upi_id)}&pn=${encodeURIComponent(info.name)}&am=${info.fee}&cu=INR`;
-            upiQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiPayUrl)}`;
+        } else {
+            upiQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiPayUrl)}`;
+        }
+
+        const payDirectBtn = document.getElementById('payUpiDirectBtn');
+        if (payDirectBtn) {
+            payDirectBtn.href = upiPayUrl;
         }
 
         // Contact info
@@ -342,22 +350,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function validateStep2() {
-        const uids = [];
-        for (let i = 1; i <= 4; i++) {
-            const pName = document.getElementById(`p${i}_name`).value.trim();
-            const pUid = document.getElementById(`p${i}_uid`).value.trim();
+        const pNameInput = document.getElementById('p1_name');
+        const pUidInput = document.getElementById('p1_uid');
 
-            if (!pName || !pUid) {
-                showToast(`Please fill out all details for Player ${i}. All 4 players are mandatory.`, 'error');
-                return false;
-            }
+        const pName = pNameInput ? pNameInput.value.trim() : '';
+        const pUid = pUidInput ? pUidInput.value.trim() : '';
 
-            uids.push(pUid);
-        }
-
-        // Check internal duplicate UIDs
-        if (new Set(uids).size < 4) {
-            showToast('Duplicate Free Fire UIDs detected among your squad members.', 'error');
+        if (!pName || !pUid) {
+            showToast('Please fill out Leader Player Name and Free Fire UID.', 'error');
             return false;
         }
 
@@ -417,10 +417,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Set Modal Data
                 if (document.getElementById('successTeamId')) {
-                    document.getElementById('successTeamId').textContent = result.data.team_id;
+                    document.getElementById('successTeamId').textContent = result.data.team_id || '--';
                 }
                 if (document.getElementById('successTeamName')) {
-                    document.getElementById('successTeamName').textContent = result.data.team_name;
+                    document.getElementById('successTeamName').textContent = result.data.team_name || '--';
+                }
+                if (document.getElementById('successAmount')) {
+                    document.getElementById('successAmount').textContent = `₹${result.data.amount || 200} Paid`;
+                }
+                if (document.getElementById('successEmail')) {
+                    document.getElementById('successEmail').textContent = result.data.email || document.getElementById('email')?.value.trim() || '--';
                 }
                 
                 // Reset Form
@@ -642,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><strong class="text-cyan">${team.team_id}</strong></td>
                 <td><strong>${escapeHtml(team.team_name)}</strong></td>
                 <td>${escapeHtml(team.leader_name)}<br><small class="text-muted">📱 ${escapeHtml(team.mobile)}</small></td>
-                <td><button class="btn btn-secondary btn-sm view-players-btn" data-teamid="${team.team_id}"><i class="fa-solid fa-users"></i> 4 Players</button></td>
+                <td><button class="btn btn-secondary btn-sm view-players-btn" data-teamid="${team.team_id}"><i class="fa-solid fa-users"></i> ${team.players ? team.players.length : 1} Player${team.players && team.players.length !== 1 ? 's' : ''}</button></td>
                 <td><code>${escapeHtml(team.payment.transaction_id || 'N/A')}</code></td>
                 <td>${screenshotBtn}</td>
                 <td>${statusBadge}</td>

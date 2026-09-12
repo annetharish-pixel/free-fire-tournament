@@ -105,14 +105,16 @@ def init_db():
     cursor.execute("SELECT COUNT(*) FROM tournament_info")
     if cursor.fetchone()[0] == 0:
         default_rules = "\n".join([
-            "1. Each squad must consist of 4 registered players with correct Free Fire UID and IGN.",
-            "2. Registration fee is ₹200 per squad (Payment UTR & screenshot verification required).",
+            "1. Each entry must consist of a registered team leader player with correct Free Fire UID and IGN.",
+            "2. Registration fee is ₹200 per entry (Payment UTR & screenshot verification required).",
             "3. Any use of hacks, cheats, or third-party tools will result in instant disqualification."
         ])
         cursor.execute('''
             INSERT INTO tournament_info (id, name, game, fee, team_size, reg_date, date, time, max_teams, prize_pool, status, rules, upi_id, contact_whatsapp, contact_email)
-            VALUES (1, 'Free Fire Squad Battle', 'Free Fire', 200.0, 4, '19/09/2026', '20/09/2026', 'To be announced', 12, '₹1,500', 'Open', ?, 'fftournament@upi', '+91 90525 96711, +91 93981 33478', 'support@ffsquadbattle.com')
+            VALUES (1, 'Free Fire Squad Battle', 'Free Fire', 200.0, 4, '19/09/2026', '20/09/2026', 'To be announced', 12, '₹1,500', 'Open', ?, '9052596711@fam', '+91 90525 96711, +91 93981 33478', 'support@ffsquadbattle.com')
         ''', (default_rules,))
+    else:
+        cursor.execute("UPDATE tournament_info SET upi_id = '9052596711@fam', prize_pool = '₹1,500' WHERE id = 1")
 
     # Seed Admin User if empty
     cursor.execute("SELECT COUNT(*) FROM admin")

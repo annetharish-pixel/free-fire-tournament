@@ -94,7 +94,7 @@
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Prize Pool</div>
-                            <div class="stat-value text-green" id="heroPrizePool">₹1,000</div>
+                            <div class="stat-value text-green" id="heroPrizePool">₹1,500</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Max Squads</div>
@@ -134,7 +134,7 @@
                     </div>
                     <div class="step-item" id="stepIndicator2">
                         <div class="step-circle">2</div>
-                        <div class="step-label">4 Players</div>
+                        <div class="step-label">Leader Profile</div>
                     </div>
                     <div class="step-item" id="stepIndicator3">
                         <div class="step-circle">3</div>
@@ -175,84 +175,30 @@
                         <div class="wizard-nav">
                             <div></div>
                             <button type="button" class="btn btn-primary" id="btnNext1">
-                                Next: Player Details <i class="fa-solid fa-arrow-right"></i>
+                                Next: Leader Profile <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- STEP 2: 4 PLAYER DETAILS -->
+                    <!-- STEP 2: LEADER PLAYER DETAILS -->
                     <div class="form-step" id="formStep2">
-                        <h3 class="text-cyan mb-4" style="margin-bottom: 1.5rem;"><i class="fa-solid fa-gamepad"></i> 4 Mandatory Players Information</h3>
-                        <p class="text-muted" style="margin-bottom: 1.5rem;">All 4 player entries are strictly required. Each Free Fire UID must be unique.</p>
+                        <h3 class="text-cyan mb-4" style="margin-bottom: 1.5rem;"><i class="fa-solid fa-gamepad"></i> Leader Player Information</h3>
+                        <p class="text-muted" style="margin-bottom: 1.5rem;">Enter the team leader's Free Fire player profile details below. Free Fire UID must be unique.</p>
 
-                        <!-- Player 1 -->
+                        <!-- Player 1 / Leader -->
                         <div class="player-box">
                             <div class="player-box-header">
-                                <span class="player-badge">PLAYER 1 (CAPTAIN)</span>
-                                <strong>Team Leader Player Profile</strong>
+                                <span class="player-badge">TEAM LEADER</span>
+                                <strong>Leader Player Profile</strong>
                             </div>
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label class="form-label">Full Name *</label>
-                                    <input type="text" name="player_1_name" id="p1_name" class="form-control" placeholder="Player 1 Name" required>
+                                    <input type="text" name="player_1_name" id="p1_name" class="form-control" placeholder="Leader Player Name" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Free Fire UID *</label>
                                     <input type="text" name="player_1_uid" id="p1_uid" class="form-control" placeholder="Numeric UID e.g. 123456789" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Player 2 -->
-                        <div class="player-box">
-                            <div class="player-box-header">
-                                <span class="player-badge">PLAYER 2</span>
-                                <strong>Squad Member 2</strong>
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label">Full Name *</label>
-                                    <input type="text" name="player_2_name" id="p2_name" class="form-control" placeholder="Player 2 Name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Free Fire UID *</label>
-                                    <input type="text" name="player_2_uid" id="p2_uid" class="form-control" placeholder="Numeric UID e.g. 234567890" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Player 3 -->
-                        <div class="player-box">
-                            <div class="player-box-header">
-                                <span class="player-badge">PLAYER 3</span>
-                                <strong>Squad Member 3</strong>
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label">Full Name *</label>
-                                    <input type="text" name="player_3_name" id="p3_name" class="form-control" placeholder="Player 3 Name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Free Fire UID *</label>
-                                    <input type="text" name="player_3_uid" id="p3_uid" class="form-control" placeholder="Numeric UID e.g. 345678901" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Player 4 -->
-                        <div class="player-box">
-                            <div class="player-box-header">
-                                <span class="player-badge">PLAYER 4</span>
-                                <strong>Squad Member 4</strong>
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label">Full Name *</label>
-                                    <input type="text" name="player_4_name" id="p4_name" class="form-control" placeholder="Player 4 Name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Free Fire UID *</label>
-                                    <input type="text" name="player_4_uid" id="p4_uid" class="form-control" placeholder="Numeric UID e.g. 456789012" required>
                                 </div>
                             </div>
                         </div>
@@ -279,12 +225,17 @@
                                     <img id="upiQrCodeImg" src="{{ url_for('static', filename='images/payment_qr_scanner.jpg') }}" alt="UPI Payment QR Code Scanner" style="max-width: 250px; height: auto; border-radius: 12px; border: 2px solid var(--neon-cyan); box-shadow: 0 0 25px var(--neon-cyan-glow);" />
                                 </div>
                                 <div class="upi-id-copy">
-                                    <span id="displayUpiId">fftournament@upi</span>
+                                    <span id="displayUpiId">9052596711@fam</span>
                                     <button type="button" class="btn btn-sm btn-secondary" id="copyUpiBtn">
                                         <i class="fa-regular fa-copy"></i> Copy UPI
                                     </button>
                                 </div>
-                                <small class="text-muted" style="display:block; margin-top:0.5rem;">Scan QR using PhonePe, GPay, Paytm or any UPI App to pay ₹200</small>
+                                <div style="margin-top: 0.8rem;">
+                                    <a id="payUpiDirectBtn" href="upi://pay?pa=9052596711%40fam&pn=Free%20Fire%20Squad%20Battle&am=200&cu=INR" class="btn btn-success btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px;">
+                                        <i class="fa-solid fa-bolt"></i> Tap to Pay ₹200 (Auto-filled)
+                                    </a>
+                                </div>
+                                <small class="text-muted" style="display:block; margin-top:0.5rem;">Scan QR or tap above using GPay, PhonePe, Paytm or FamPay (₹200 pre-filled)</small>
                             </div>
 
                             <!-- Payment Details Input -->
@@ -390,39 +341,65 @@
 
     <!-- SUCCESS CONFIRMATION MODAL -->
     <div class="modal-overlay" id="successModal">
-        <div class="modal-content text-center" style="text-align: center;">
+        <div class="modal-content text-center" style="text-align: center; max-width: 540px; padding: 2.2rem; border: 1px solid rgba(0, 255, 136, 0.4); box-shadow: 0 0 50px rgba(0, 255, 136, 0.25);">
             <button class="modal-close" id="closeSuccessModal">&times;</button>
-            <div style="font-size: 3.5rem; color: var(--emerald-green); margin-bottom: 1rem;">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
-            <h2 class="text-cyan glow-cyan" style="margin-bottom: 0.5rem;">🎉 REGISTRATION SUBMITTED!</h2>
-            <p class="text-muted" style="margin-bottom: 1.5rem;">Save your official Team ID below to track payment verification status.</p>
-
-            <div class="card-glass" style="margin-bottom: 1.5rem; background: rgba(0, 243, 255, 0.05); border-color: var(--border-cyan);">
-                <div class="stat-label">YOUR TEAM ID</div>
-                <div class="stat-value text-cyan glow-cyan" id="successTeamId" style="font-size: 2.2rem; letter-spacing: 2px;">FFSB0001</div>
-                <button class="btn btn-secondary btn-sm" id="copyTeamIdBtn" style="margin-top: 0.8rem;">
-                    <i class="fa-regular fa-copy"></i> Copy Team ID
-                </button>
+            
+            <!-- Animated Green Checkmark -->
+            <div class="success-checkmark-container">
+                <svg class="checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="23" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
             </div>
 
-            <div class="form-grid" style="margin-bottom: 1.5rem;">
-                <div class="stat-box">
-                    <div class="stat-label">Team Name</div>
-                    <div class="stat-value text-gold" id="successTeamName">--</div>
+            <!-- Title & Subtitle -->
+            <h2 class="glow-green" style="color: #00ff88; margin-bottom: 0.3rem; font-size: 1.8rem; font-family: var(--font-heading);">Payment Successful!</h2>
+            <p class="text-muted" style="margin-bottom: 1.2rem; font-size: 0.95rem;">Your Free Fire Tournament registration has been successfully submitted.</p>
+
+            <!-- Status Tag -->
+            <div style="margin-bottom: 1.5rem;">
+                <span class="badge" style="background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; padding: 0.4rem 1.2rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                    <i class="fa-solid fa-circle-check" style="margin-right: 0.4rem;"></i> Team Registration Confirmed
+                </span>
+            </div>
+
+            <!-- Main Details Card -->
+            <div class="card-glass" style="margin-bottom: 1.5rem; background: rgba(0, 243, 255, 0.03); border: 1px solid var(--border-cyan); padding: 1.2rem; border-radius: 12px;">
+                <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">REGISTRATION ID / TEAM ID</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin-bottom: 1rem;">
+                    <span class="text-cyan glow-cyan" id="successTeamId" style="font-size: 2rem; font-weight: 900; font-family: var(--font-heading); letter-spacing: 2px;">FFSB0001</span>
+                    <button type="button" class="btn btn-secondary btn-sm" id="copyTeamIdBtn" style="padding: 0.3rem 0.7rem; font-size: 0.8rem;">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Entry Fee</div>
-                    <div class="stat-value text-green">₹200</div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; border-top: 1px dashed var(--border-color); padding-top: 1rem; text-align: left;">
+                    <div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase;">Team Name</div>
+                        <div style="font-weight: 700; color: var(--gold-accent); font-size: 1.05rem;" id="successTeamName">--</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase;">Amount Paid</div>
+                        <div style="font-weight: 700; color: #00ff88; font-size: 1.05rem;" id="successAmount">₹200 Paid</div>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase;">Registered Email</div>
+                        <div style="font-weight: 600; color: var(--neon-cyan); font-size: 0.95rem; word-break: break-all;" id="successEmail">--</div>
+                    </div>
                 </div>
             </div>
 
-            <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 1.5rem;">
-                Our organizer team is verifying your payment screenshot and UTR. Status will update to <strong>CONFIRMED</strong> shortly.
-            </p>
+            <!-- Email Notification Box -->
+            <div style="background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.2); padding: 0.8rem 1rem; border-radius: 10px; margin-bottom: 1.5rem; text-align: left; display: flex; align-items: center; gap: 0.8rem;">
+                <i class="fa-solid fa-envelope-circle-check" style="font-size: 1.5rem; color: var(--neon-cyan); flex-shrink: 0;"></i>
+                <div style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.4;">
+                    A confirmation email has been sent to your registered email address.
+                </div>
+            </div>
 
-            <button type="button" class="btn btn-primary" id="btnDoneSuccess">
-                Done & Track Status
+            <!-- Actions -->
+            <button type="button" class="btn btn-primary" id="btnDoneSuccess" style="width: 100%; justify-content: center; font-size: 1rem; padding: 0.85rem 1.5rem;">
+                <i class="fa-solid fa-house"></i> Go to Home
             </button>
         </div>
     </div>

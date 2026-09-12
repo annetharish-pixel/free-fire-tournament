@@ -318,18 +318,18 @@ def register_team():
         email = request.form.get('email', '').strip()
         transaction_id = request.form.get('transaction_id', '').strip()
 
-        # Extract 4 Players
+        # Extract Leader Player Information
         players_data = []
-        for i in range(1, 5):
-            p_name = request.form.get(f'player_{i}_name', '').strip()
-            p_uid = request.form.get(f'player_{i}_uid', '').strip()
-            p_ign = request.form.get(f'player_{i}_ign', '').strip() or p_name
-            players_data.append({
-                'number': i,
-                'name': p_name,
-                'uid': p_uid,
-                'ign': p_ign
-            })
+        p1_name = request.form.get('player_1_name', '').strip() or leader_name
+        p1_uid = request.form.get('player_1_uid', '').strip()
+        p1_ign = request.form.get('player_1_ign', '').strip() or p1_name
+
+        players_data.append({
+            'number': 1,
+            'name': p1_name,
+            'uid': p1_uid,
+            'ign': p1_ign
+        })
 
         # --- VALIDATIONS ---
         # 1. Mandatory Fields
@@ -337,11 +337,10 @@ def register_team():
             conn.close()
             return jsonify({'success': False, 'message': 'All team & payment details are required.'}), 400
 
-        # 2. Validate all 4 players
-        for p in players_data:
-            if not p['name'] or not p['uid']:
-                conn.close()
-                return jsonify({'success': False, 'message': f'Please enter valid details for Player {p["number"]}. All 4 players are mandatory.'}), 400
+        # 2. Validate Leader Player
+        if not p1_name or not p1_uid:
+            conn.close()
+            return jsonify({'success': False, 'message': 'Please enter valid details for Leader Player (Name and Free Fire UID).'}), 400
 
         # 3. Email & Phone validation
         email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
@@ -359,11 +358,11 @@ def register_team():
             conn.close()
             return jsonify({'success': False, 'message': f'Team Name "{team_name}" is already registered. Please choose another name.'}), 400
 
-        # 5. Internal UID Uniqueness Check (among 4 players in submission)
-        submitted_uids = [p['uid'] for p in players_data]
-        if len(set(submitted_uids)) < 4:
+        # 5. Internal UID Uniqueness Check
+        submitted_uids = [p['uid'] for p in players_data if p['uid']]
+        if len(set(submitted_uids)) < len(submitted_uids):
             conn.close()
-            return jsonify({'success': False, 'message': 'Duplicate Free Fire UIDs found among your 4 players.'}), 400
+            return jsonify({'success': False, 'message': 'Duplicate Free Fire UIDs found.'}), 400
 
         # 6. External DB UID Uniqueness Check
         existing_uids = db.check_duplicate_uids(submitted_uids)
@@ -439,8 +438,11 @@ def register_team():
             'data': {
                 'team_id': team_id,
                 'team_name': team_name,
+                'leader_name': leader_name,
+                'email': email,
+                'mobile': mobile,
                 'registration_status': 'Confirmed',
-                'payment_status': 'Pending Verification',
+                'payment_status': 'Submitted for Verification',
                 'amount': 200,
                 'email_sent': email_sent
             }
