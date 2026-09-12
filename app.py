@@ -1,10 +1,19 @@
 import os
 import re
 import uuid
+import smtplib
+import logging
+from datetime import datetime
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from flask import Flask, render_template, request, jsonify, session, send_from_directory, redirect, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 import db
+
+# Setup Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_esports_tournament_key_2026'
@@ -15,6 +24,219 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB upload limit
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# SMTP Environment Configuration
+SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))
+SMTP_USERNAME = os.getenv('SMTP_USERNAME', os.getenv('EMAIL_USER', ''))
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', os.getenv('EMAIL_PASSWORD', os.getenv('APP_PASSWORD', '')))
+SMTP_USE_TLS = os.getenv('SMTP_USE_TLS', 'true').lower() in ('true', '1', 'yes')
+SENDER_EMAIL = os.getenv('SENDER_EMAIL', SMTP_USERNAME or 'support@ffsquadbattle.com')
+SENDER_NAME = os.getenv('SENDER_NAME', 'Free Fire Squad Battle')
+
+def send_registration_confirmation_email(team_id, team_name, leader_name, mobile, recipient_email, players_data, fee=200, status="Confirmed", tournament_name="Free Fire Squad Battle"):
+    """
+    Sends an automatic registration confirmation email to the team leader.
+    Returns (success: bool, error_message: str).
+    Does NOT affect database state if email delivery fails.
+    """
+    if not SMTP_USERNAME or not SMTP_PASSWORD:
+        err_msg = "SMTP credentials (SMTP_USERNAME / SMTP_PASSWORD) are not configured in environment variables."
+        logger.warning(f"[EMAIL NOT SENT] {err_msg}")
+        return False, err_msg
+
+    try:
+        current_time_str = datetime.now().strftime("%d %b %Y, %I:%M %p")
+        
+        # Build HTML Email Body
+        players_html = ""
+        for p in players_data:
+            players_html += f"""
+            <tr>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #2a2e3d; color: #e2e8f0; font-size: 14px;">Player {p['number']}</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #2a2e3d; color: #e2e8f0; font-size: 14px; font-weight: 600;">{p['name']}</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #2a2e3d; color: #ff9900; font-size: 14px; font-weight: 600;">{p['ign']}</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #2a2e3d; color: #94a3b8; font-size: 14px;">{p['uid']}</td>
+            </tr>
+            """
+
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Registration Confirmed - {tournament_name}</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #0f111a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #e2e8f0;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0f111a; padding: 30px 10px;">
+                <tr>
+                    <td align="center">
+                        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #171a29; border-radius: 12px; border: 1px solid #2e344e; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                            <!-- Header Banner -->
+                            <tr>
+                                <td style="background: linear-gradient(135deg, #ff4655 0%, #ff9900 100%); padding: 25px; text-align: center;">
+                                    <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                                        🎮 {tournament_name}
+                                    </h1>
+                                    <p style="margin: 5px 0 0 0; color: #ffffff; font-size: 14px; font-weight: 600; opacity: 0.95;">
+                                        Official Registration Confirmation Receipt
+                                    </p>
+                                </td>
+                            </tr>
+                            <!-- Success Alert Badge -->
+                            <tr>
+                                <td style="padding: 20px 30px 10px 30px; text-align: center;">
+                                    <div style="background-color: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #4ade80; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block;">
+                                        ✅ REGISTRATION CONFIRMED
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Details Section -->
+                            <tr>
+                                <td style="padding: 20px 30px;">
+                                    <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1; margin-bottom: 20px;">
+                                        Hello <strong style="color: #ffffff;">{leader_name}</strong>,<br>
+                                        Your squad <strong style="color: #ff9900;">{team_name}</strong> has been successfully registered for <strong>{tournament_name}</strong>! Below are your official tournament registration details.
+                                    </p>
+                                    
+                                    <!-- Summary Card -->
+                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0f111a; border-radius: 8px; border: 1px solid #262b3e; padding: 15px; margin-bottom: 25px;">
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px; width: 40%;">Tournament Name:</td>
+                                            <td style="padding: 6px 0; color: #ffffff; font-size: 14px; font-weight: 700;">{tournament_name}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Team Name:</td>
+                                            <td style="padding: 6px 0; color: #ff9900; font-size: 14px; font-weight: 700;">{team_name}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Team ID / Reg ID:</td>
+                                            <td style="padding: 6px 0; color: #38bdf8; font-size: 14px; font-weight: 700; font-family: monospace;">{team_id}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Team Leader Name:</td>
+                                            <td style="padding: 6px 0; color: #ffffff; font-size: 14px;">{leader_name}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Registered Email:</td>
+                                            <td style="padding: 6px 0; color: #ffffff; font-size: 14px;">{recipient_email}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Mobile Number:</td>
+                                            <td style="padding: 6px 0; color: #ffffff; font-size: 14px;">{mobile}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Registration Fee:</td>
+                                            <td style="padding: 6px 0; color: #4ade80; font-size: 14px; font-weight: 700;">₹{fee}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Registration Status:</td>
+                                            <td style="padding: 6px 0; color: #4ade80; font-size: 14px; font-weight: 700;">{status}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px 0; color: #94a3b8; font-size: 13px;">Registration Date/Time:</td>
+                                            <td style="padding: 6px 0; color: #cbd5e1; font-size: 13px;">{current_time_str}</td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Squad Roster Table -->
+                                    <h3 style="color: #ffffff; font-size: 16px; margin: 0 0 12px 0; border-bottom: 2px solid #ff4655; padding-bottom: 6px; display: inline-block;">
+                                        🔥 Registered Squad Roster
+                                    </h3>
+                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse; background-color: #0f111a; border-radius: 8px; overflow: hidden; border: 1px solid #262b3e;">
+                                        <thead>
+                                            <tr style="background-color: #1f2438;">
+                                                <th style="padding: 10px 12px; text-align: left; color: #94a3b8; font-size: 12px; text-transform: uppercase;">Role</th>
+                                                <th style="padding: 10px 12px; text-align: left; color: #94a3b8; font-size: 12px; text-transform: uppercase;">Player Name</th>
+                                                <th style="padding: 10px 12px; text-align: left; color: #94a3b8; font-size: 12px; text-transform: uppercase;">In-Game Name (IGN)</th>
+                                                <th style="padding: 10px 12px; text-align: left; color: #94a3b8; font-size: 12px; text-transform: uppercase;">Free Fire UID</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {players_html}
+                                        </tbody>
+                                    </table>
+
+                                    <div style="margin-top: 30px; padding: 15px; background-color: #121522; border-left: 4px solid #ff9900; border-radius: 4px;">
+                                        <p style="margin: 0; font-size: 13px; color: #cbd5e1; line-height: 1.5;">
+                                            <strong>📢 Next Steps:</strong> Keep your Team ID (<code>{team_id}</code>) handy. Room ID and password will be shared prior to tournament schedule.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Footer -->
+                            <tr>
+                                <td style="background-color: #11131f; padding: 20px; text-align: center; border-top: 1px solid #262b3e;">
+                                    <p style="margin: 0 0 6px 0; font-size: 13px; color: #94a3b8;">
+                                        Good luck on the battlefield! May the Booyah be yours! 🏆
+                                    </p>
+                                    <p style="margin: 0; font-size: 11px; color: #64748b;">
+                                        © 2026 {tournament_name}. All rights reserved.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        """
+
+        # Build Plain Text Fallback
+        text_content = f"""
+        🎮 {tournament_name} - Registration Confirmed
+        ====================================================
+        Hello {leader_name},
+
+        Your squad '{team_name}' has been successfully registered!
+
+        REGISTRATION DETAILS:
+        - Tournament Name: {tournament_name}
+        - Team Name: {team_name}
+        - Team ID / Reg ID: {team_id}
+        - Leader Name: {leader_name}
+        - Registered Email: {recipient_email}
+        - Mobile Number: {mobile}
+        - Registration Fee: ₹{fee}
+        - Registration Status: {status}
+        - Date/Time: {current_time_str}
+
+        SQUAD ROSTER:
+        """
+        for p in players_data:
+            text_content += f"\n- Player {p['number']}: {p['name']} | IGN: {p['ign']} | UID: {p['uid']}"
+
+        text_content += f"\n\nGood luck! Keep your Team ID ({team_id}) saved.\n\n© 2026 {tournament_name}"
+
+        # Construct Email Message
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"✅ Registration Confirmed: {team_name} ({team_id}) - {tournament_name}"
+        msg["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
+        msg["To"] = recipient_email
+
+        msg.attach(MIMEText(text_content, "plain"))
+        msg.attach(MIMEText(html_content, "html"))
+
+        # Connect to SMTP Server
+        if SMTP_PORT == 465:
+            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10)
+        else:
+            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10)
+            if SMTP_USE_TLS:
+                server.starttls()
+
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.sendmail(SENDER_EMAIL, [recipient_email], msg.as_string())
+        server.quit()
+
+        logger.info(f"[EMAIL SUCCESS] Confirmation email successfully sent to {recipient_email} for team {team_id}")
+        return True, ""
+
+    except Exception as e:
+        err_msg = str(e)
+        logger.error(f"[EMAIL ERROR] Failed to send confirmation email to {recipient_email} for team {team_id}: {err_msg}")
+        return False, err_msg
 
 # Ensure database tables exist
 with app.app_context():
@@ -184,15 +406,34 @@ def register_team():
         conn.commit()
         conn.close()
 
+        # Automatic Registration Confirmation Email
+        email_sent, email_err = send_registration_confirmation_email(
+            team_id=team_id,
+            team_name=team_name,
+            leader_name=leader_name,
+            mobile=mobile,
+            recipient_email=email,
+            players_data=players_data,
+            fee=200,
+            status="Confirmed"
+        )
+
+        if email_sent:
+            response_msg = "Registration successful! Confirmation email has been sent to your registered email."
+        else:
+            response_msg = "Registration successful! Confirmation email could not be sent to your registered email."
+
         return jsonify({
             'success': True,
-            'message': 'Registration submitted successfully!',
+            'email_sent': email_sent,
+            'message': response_msg,
             'data': {
                 'team_id': team_id,
                 'team_name': team_name,
-                'registration_status': 'Pending',
+                'registration_status': 'Confirmed',
                 'payment_status': 'Pending Verification',
-                'amount': 200
+                'amount': 200,
+                'email_sent': email_sent
             }
         })
 

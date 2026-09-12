@@ -413,11 +413,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await res.json();
             if (result.success) {
-                showToast('Registration submitted successfully!', 'success');
+                showToast(result.message || 'Registration successful! Confirmation email has been sent to your registered email.', result.email_sent === false ? 'info' : 'success');
                 
                 // Set Modal Data
-                document.getElementById('successTeamId').textContent = result.data.team_id;
-                document.getElementById('successTeamName').textContent = result.data.team_name;
+                if (document.getElementById('successTeamId')) {
+                    document.getElementById('successTeamId').textContent = result.data.team_id;
+                }
+                if (document.getElementById('successTeamName')) {
+                    document.getElementById('successTeamName').textContent = result.data.team_name;
+                }
                 
                 // Reset Form
                 registrationForm.reset();

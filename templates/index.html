@@ -26,10 +26,8 @@
 
             <ul class="nav-links" id="navLinks">
                 <li><a href="#home" class="nav-link active">Home</a></li>
-                <li><a href="#details" class="nav-link">Overview</a></li>
                 <li><a href="#rules" class="nav-link">Rules</a></li>
                 <li><a href="#register" class="nav-link">Register</a></li>
-                <li><a href="#track" class="nav-link">Track ID</a></li>
                 <li><a href="#leaderboard" class="nav-link">Leaderboard</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
                 <li>
@@ -61,9 +59,7 @@
                     </div>
 
                     <h1 class="hero-title" style="font-size: 2rem;">DOMINATE THE <span class="text-cyan glow-cyan">BATTLEGROUND</span></h1>
-                    <p class="hero-subtitle">
-                        Assemble your ultimate 4-player squad, showcase your tactical gameplay, compete for glory, and claim the ₹1,000 prize pool in the Free Fire Squad Battle!
-                    </p>
+
                     
                     <!-- Free Fire Characters Gallery Cards -->
                     <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
@@ -78,9 +74,6 @@
                     <div class="hero-ctas">
                         <a href="#register" class="btn btn-fire">
                             <i class="fa-solid fa-crosshairs"></i> REGISTER YOUR TEAM
-                        </a>
-                        <a href="#track" class="btn btn-secondary">
-                            <i class="fa-solid fa-magnifying-glass"></i> TRACK STATUS
                         </a>
                     </div>
                 </div>
@@ -113,44 +106,10 @@
         </div>
     </section>
 
-    <!-- TOURNAMENT OVERVIEW -->
-    <section id="details" class="section-padding">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-subtitle">TOURNAMENT DETAILS</div>
-                <h2>OFFICIAL MATCH SPECIFICATIONS</h2>
-            </div>
-
-            <div class="card-glass">
-                <div class="form-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">Game Title</div>
-                        <div class="stat-value text-cyan" id="infoGame">Free Fire (Mobile)</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Registration Deadline</div>
-                        <div class="stat-value text-gold" id="infoRegDate">12/09/2026</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Tournament Date</div>
-                        <div class="stat-value text-green" id="infoDate">13/09/2026</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Maximum Squads</div>
-                        <div class="stat-value text-cyan" id="infoMaxTeams">12 Squads</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- RULES SECTION -->
     <section id="rules" class="section-padding">
         <div class="container">
-            <div class="section-header">
-                <div class="section-subtitle">FAIR PLAY & GUIDELINES</div>
-                <h2>TOURNAMENT RULES</h2>
-            </div>
 
             <div class="rules-grid" id="rulesListContainer">
                 <!-- Rules populated dynamically -->
@@ -362,26 +321,6 @@
         </div>
     </section>
 
-    <!-- TRACK REGISTRATION SECTION -->
-    <section id="track" class="section-padding">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-subtitle">REGISTRATION VERIFICATION</div>
-                <h2>TRACK TEAM STATUS</h2>
-            </div>
-
-            <div class="track-search-box">
-                <input type="text" id="trackInput" class="form-control" placeholder="Enter Team ID (e.g. FFSB0001) or Team Name">
-                <button type="button" class="btn btn-primary" id="btnTrackStatus">
-                    <i class="fa-solid fa-magnifying-glass"></i> CHECK STATUS
-                </button>
-            </div>
-
-            <div class="status-display-card card-glass" id="statusResultContainer">
-                <!-- Status content rendered dynamically -->
-            </div>
-        </div>
-    </section>
 
     <!-- LEADERBOARD SECTION -->
     <section id="leaderboard" class="section-padding">
